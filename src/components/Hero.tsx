@@ -35,7 +35,7 @@ export default function Hero({
         <div className="space-y-4">
           <div className="inline-flex items-center space-x-2 bg-indigo-500/10 border border-indigo-500/20 px-3.5 py-1.5 rounded-full text-xs text-indigo-300 font-mono">
             <Sparkle className="w-3.5 h-3.5 animate-spin" style={{ animationDuration: '4s' }} />
-            <span>Available for Full-Stack & Developer Positions</span>
+            <span>Available for Full-Stack & Developer </span>
           </div>
 
           {/* Massive Name Display */}
