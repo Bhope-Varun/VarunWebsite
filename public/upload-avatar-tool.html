@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Direct Image Workspace Uploader — Varun Bhope Portfolio</title>
+  <!-- Loading space-age modern design integrations -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-[#0b0f19] text-slate-100 min-h-screen flex flex-col justify-between font-sans">
+
+  <!-- Header Branding -->
+  <header class="border-b border-slate-900/80 bg-slate-950/40 backdrop-blur-md px-6 py-4">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold font-mono">
+          VB
+        </div>
+        <div>
+          <h1 class="text-sm font-extrabold text-white tracking-tight">Varun Bhope Workspace</h1>
+          <p class="text-[10px] text-indigo-400 font-mono tracking-wider font-semibold uppercase">Workspace DevTool Uploader</p>
+        </div>
+      </div>
+      <a href="/" class="text-xs font-semibold text-slate-400 hover:text-white bg-slate-900 hover:bg-slate-850 px-3 py-1.5 rounded-lg border border-slate-800/80 transition-all font-mono">
+        &larr; View Portfolio
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Action Body -->
+  <main class="flex-1 max-w-xl w-full mx-auto p-6 flex flex-col justify-center">
+    <div class="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-6 sm:p-8 backdrop-blur-md shadow-2xl space-y-6">
+      
+      <!-- Copy / Description Details -->
+      <div class="space-y-2 text-center">
+        <div class="inline-flex items-center justify-center p-3 bg-indigo-500/10 text-indigo-400 rounded-2xl border border-indigo-500/25 mb-2">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8 animate-pulse">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 3 3m-3-3v15" />
+          </svg>
+        </div>
+        <h2 class="text-xl font-extrabold text-white tracking-tight">Direct Static Asset Uploader</h2>
+        <p class="text-xs text-slate-400 leading-relaxed max-w-sm mx-auto">
+          Drag, drop, or select any image to write it permanently into the codebase filesystem as 
+          <code class="text-indigo-300 font-mono text-[11px] px-1.5 py-0.5 bg-slate-950/70 rounded-md border border-slate-800">/public/avatar.png</code>
+        </p>
+      </div>
+
+      <!-- File Drop Area -->
+      <div 
+        id="drop-zone"
+        class="border-2 border-dashed border-slate-800 hover:border-slate-700 bg-slate-950/15 rounded-xl p-8 flex flex-col items-center justify-center transition-all cursor-pointer group"
+      >
+        <input 
+          type="file" 
+          id="hidden-uploader-input" 
+          accept="image/*" 
+          class="hidden"
+        />
+        
+        <div id="drop-prompt" class="flex flex-col items-center justify-center text-center space-y-3">
+          <div class="p-3 bg-indigo-500/5 text-indigo-400 rounded-xl border border-slate-800/60 group-hover:scale-105 transition-transform">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" class="w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375 0 11-.75 0 .375 0 01.75 0z" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-xs font-bold text-white">Select profile photo file</p>
+            <p class="text-[10px] text-slate-500 mt-1">PNG, JPG, WebP or camera shot (Max 15MB)</p>
+          </div>
+        </div>
+
+        <div id="preview-container" class="hidden flex flex-col items-center justify-center text-center space-y-4">
+          <img 
+            id="preview-img" 
+            src="#" 
+            alt="Preview Selected Image"
+            class="w-28 h-28 rounded-full object-cover border-4 border-indigo-600/30 shadow-xl shadow-indigo-950/40"
+          />
+          <div class="space-y-1">
+            <p id="preview-filename" class="text-[10px] text-slate-400 font-mono truncate max-w-xs font-semibold"></p>
+            <p id="preview-size" class="text-[9px] text-slate-500 font-mono"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div id="action-controls" class="hidden flex space-x-3">
+        <button 
+          id="btn-upload"
+          class="flex-1 py-3 px-4 bg-indigo-600 hover:bg-indigo-500 active:scale-[0.98] text-white text-xs font-extrabold rounded-lg tracking-wide uppercase transition-all shadow-lg shadow-indigo-950/50 cursor-pointer flex items-center justify-center space-x-2"
+        >
+          <svg id="upload-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+          </svg>
+          <svg id="spinner-icon" class="hidden animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span id="btn-text">Write to Codebase File</span>
+        </button>
+        <button 
+          id="btn-cancel"
+          class="py-3 px-4 bg-slate-800 hover:bg-slate-700 active:scale-[0.98] text-slate-300 text-xs font-bold rounded-lg transition-all cursor-pointer"
+        >
+          Cancel
+        </button>
+      </div>
+
+      <!-- Result Banner Notification -->
+      <div id="status-banner" class="hidden p-3.5 rounded-xl border flex items-start space-x-2.5 text-left text-xs animate-in fade-in duration-200">
+        <!-- Success Icon -->
+        <svg id="status-success-icon" class="hidden w-4 h-4 text-emerald-400 shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <!-- Error Icon -->
+        <svg id="status-error-icon" class="hidden w-4 h-4 text-rose-400 shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+        </svg>
+        <div class="flex-1">
+          <p id="status-title" class="font-bold leading-normal"></p>
+          <p id="status-message" class="text-[10px] text-slate-400 mt-1 leading-relaxed font-mono"></p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center py-6 text-[10px] text-slate-600 font-mono border-t border-slate-950/60 bg-slate-950/20">
+    Workspace Asset Manager • Ready to compile to production • Port 3000
+  </footer>
+
+  <script>
+    const dropZone = document.getElementById('drop-zone');
+    const uploaderInput = document.getElementById('hidden-uploader-input');
+    
+    const dropPrompt = document.getElementById('drop-prompt');
+    const previewContainer = document.getElementById('preview-container');
+    const previewImg = document.getElementById('preview-img');
+    const previewFilename = document.getElementById('preview-filename');
+    const previewSize = document.getElementById('preview-size');
+    
+    const actionControls = document.getElementById('action-controls');
+    const btnUpload = document.getElementById('btn-upload');
+    const btnCancel = document.getElementById('btn-cancel');
+    const btnText = document.getElementById('btn-text');
+    const uploadIcon = document.getElementById('upload-icon');
+    const spinnerIcon = document.getElementById('spinner-icon');
+    
+    const statusBanner = document.getElementById('status-banner');
+    const statusSuccessIcon = document.getElementById('status-success-icon');
+    const statusErrorIcon = document.getElementById('status-error-icon');
+    const statusTitle = document.getElementById('status-title');
+    const statusMessage = document.getElementById('status-message');
+
+    let base64ImageString = null;
+    let selectedFilename = null;
+
+    // Trigger input on drop-zone click
+    dropZone.addEventListener('click', () => {
+      if (!base64ImageString) {
+        uploaderInput.click();
+      }
+    });
+
+    // Handle standard change upload
+    uploaderInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) handleFile(file);
+    });
+
+    // Drag-and-drop actions
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        dropZone.classList.add('border-indigo-500', 'bg-indigo-500/5', 'scale-[0.98]');
+      }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('border-indigo-500', 'bg-indigo-500/5', 'scale-[0.98]');
+      }, false);
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      const file = e.dataTransfer.files[0];
+      if (file) handleFile(file);
+    });
+
+    function handleFile(file) {
+      if (!file.type.startsWith('image/')) {
+        showError('Invalid File', 'Only image files (PNG, JPG, WebP, GIF) are supported.');
+        return;
+      }
+      if (file.size > 15 * 1024 * 1024) {
+        showError('File Too Large', 'Maximum image upload size limit is 15MB.');
+        return;
+      }
+
+      selectedFilename = file.name;
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        base64ImageString = reader.result;
+        
+        // Show Preview
+        previewImg.src = base64ImageString;
+        previewFilename.textContent = file.name;
+        previewSize.textContent = `Size: ${(file.size / (1024 * 1024)).toFixed(2)} MB • ${file.type}`;
+        
+        dropPrompt.classList.add('hidden');
+        previewContainer.classList.remove('hidden');
+        actionControls.classList.remove('hidden');
+        hideStatus();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Cancel selection
+    btnCancel.addEventListener('click', (e) => {
+      e.stopPropagation();
+      resetUploader();
+    });
+
+    function resetUploader() {
+      base64ImageString = null;
+      selectedFilename = null;
+      uploaderInput.value = '';
+      previewImg.src = '#';
+      dropPrompt.classList.remove('hidden');
+      previewContainer.classList.add('hidden');
+      actionControls.classList.add('hidden');
+    }
+
+    // Trigger API request to backend write
+    btnUpload.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      if (!base64ImageString) return;
+
+      // Lock buttons state
+      btnUpload.disabled = true;
+      btnCancel.disabled = true;
+      btnUpload.classList.add('bg-slate-800', 'text-slate-500');
+      uploadIcon.classList.add('hidden');
+      spinnerIcon.classList.remove('hidden');
+      btnText.textContent = "Writing file into disk...";
+
+      try {
+        const response = await fetch('/api/upload-avatar', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            image: base64ImageString,
+            filename: selectedFilename
+          })
+        });
+
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+          showSuccess(
+            'Success! Codebase updated', 
+            `Your profile picture was successfully saved to disk as "/public/avatar.png". Please restart/refresh the dev portal or build target to let the static compiler pull this asset, and the profile photo circles will render it automatically!`
+          );
+          
+          // Try to update local cached localStorage if available in browser context for immediate hydration
+          try {
+            const stored = localStorage.getItem('varun_bhope_profile_v2');
+            if (stored) {
+              const current = JSON.parse(stored);
+              current.profilePictureUrl = data.url;
+              localStorage.setItem('varun_bhope_profile_v2', JSON.stringify(current));
+            }
+          } catch (e) {
+            console.warn('LocalStorage syncing skipped inside standalone frame:', e);
+          }
+          
+          resetUploader();
+        } else {
+          throw new Error(data.error || 'Server rejected file upload write');
+        }
+      } catch (err) {
+        showError('Asset Write Failure', err.message || 'Check dev server connection in Port 3000.');
+      } finally {
+        btnUpload.disabled = false;
+        btnCancel.disabled = false;
+        btnUpload.classList.remove('bg-slate-800', 'text-slate-500');
+        uploadIcon.classList.remove('hidden');
+        spinnerIcon.classList.add('hidden');
+        btnText.textContent = "Write to Codebase File";
+      }
+    });
+
+    function showSuccess(title, msg) {
+      statusBanner.className = "p-3.5 rounded-xl border flex items-start space-x-2.5 text-left text-xs bg-emerald-950/30 border-emerald-500/25 text-emerald-300 animate-in fade-in duration-200 mt-4";
+      statusSuccessIcon.classList.remove('hidden');
+      statusErrorIcon.classList.add('hidden');
+      statusTitle.textContent = title;
+      statusMessage.textContent = msg;
+    }
+
+    function showError(title, msg) {
+      statusBanner.className = "p-3.5 rounded-xl border flex items-start space-x-2.5 text-left text-xs bg-rose-950/30 border-rose-500/25 text-rose-300 animate-in fade-in duration-200 mt-4";
+      statusSuccessIcon.classList.add('hidden');
+      statusErrorIcon.classList.remove('hidden');
+      statusTitle.textContent = title;
+      statusMessage.textContent = msg;
+    }
+
+    function hideStatus() {
+      statusBanner.classList.add('hidden');
+    }
+  </script>
+</body>
+</html>

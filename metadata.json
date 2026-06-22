@@ -1,0 +1,6 @@
+{
+  "name": "AI Concept Visualizer & Sandbox",
+  "description": "Synthesize any topic into interactive, animated diagrams, mathematical playground sliders, analogies, and conceptual mastery quizzes.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

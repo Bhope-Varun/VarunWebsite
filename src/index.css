@@ -1,0 +1,127 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+@layer base {
+  body {
+    @apply antialiased bg-slate-900 text-slate-100 selection:bg-indigo-500/30 selection:text-indigo-200;
+  }
+}
+
+/* Custom fade-in and slide-up animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Custom terminal glowing text effects */
+.terminal-glow {
+  text-shadow: 0 0 8px rgba(99, 102, 241, 0.2);
+}
+
+@media print {
+  /* Hide standard web layouts entirely to avoid multiple blank pages */
+  #root > div > *:not(#print-modal-parent) {
+    display: none !important;
+  }
+  
+  html, body {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    height: auto !important;
+    min-height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 10.5pt;
+    line-height: 1.4;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 12mm 15mm 12mm 15mm;
+  }
+
+  /* Strip all dark theme elements, scroll containers, borders, backdrops, and paddings from parent and outer layouts */
+  #print-modal-parent {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    display: block !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    z-index: 9999999 !important;
+    overflow: visible !important;
+  }
+
+  #print-modal-parent * {
+    background-color: transparent !important;
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    max-height: none !important;
+  }
+
+  /* Specifically hide close, control buttons, footer warnings, and background overlays */
+  #print-modal-backdrop,
+  #print-control-header,
+  #print-modal-footer-warning,
+  #print-modal-iframe-warning,
+  button,
+  svg {
+    display: none !important;
+  }
+
+  /* Force the white paper container to standard layout and clear margins */
+  #printable-resume-area {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  /* Force text items inside printable area to be high-contrast print-ready colors */
+  #printable-resume-area * {
+    color: #000000 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    border-color: #d1d5db !important; /* light grey resume separator borders */
+  }
+
+  /* Maintain elegant underlined style for resume hyperlinks in print format */
+  #printable-resume-area a {
+    color: #1e1b4b !important;
+    text-decoration: underline !important;
+  }
+}
+
