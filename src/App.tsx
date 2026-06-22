@@ -51,7 +51,110 @@ import ResumeModal from './components/ResumeModal';
 import Hero from './components/Hero';
 import Footer from './components/Footer';
 
+// browser-native high-capacity IndexedDB storage helpers
+export function saveAvatarToIndexedDB(base64Data: string): Promise<void> {
+  return new Promise((resolve) => {
+    try {
+      const request = indexedDB.open('varun_portfolio_indexeddb', 1);
+      request.onupgradeneeded = (e: any) => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains('assets')) {
+          db.createObjectStore('assets');
+        }
+      };
+      request.onsuccess = (e: any) => {
+        const db = e.target.result;
+        try {
+          const transaction = db.transaction('assets', 'readwrite');
+          const store = transaction.objectStore('assets');
+          store.put(base64Data, 'avatar');
+          resolve();
+        } catch (err) {
+          console.error("IndexedDB transactional write error:", err);
+          resolve();
+        }
+      };
+      request.onerror = () => resolve();
+    } catch (err) {
+      console.error("IndexedDB initialization error:", err);
+      resolve();
+    }
+  });
+}
+
+export function getAvatarFromIndexedDB(): Promise<string | null> {
+  return new Promise((resolve) => {
+    try {
+      const request = indexedDB.open('varun_portfolio_indexeddb', 1);
+      request.onupgradeneeded = (e: any) => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains('assets')) {
+          db.createObjectStore('assets');
+        }
+      };
+      request.onsuccess = (e: any) => {
+        const db = e.target.result;
+        try {
+          if (!db.objectStoreNames.contains('assets')) {
+            resolve(null);
+            return;
+          }
+          const transaction = db.transaction('assets', 'readonly');
+          const store = transaction.objectStore('assets');
+          const getReq = store.get('avatar');
+          getReq.onsuccess = () => {
+            resolve(getReq.result || null);
+          };
+          getReq.onerror = () => resolve(null);
+        } catch (err) {
+          resolve(null);
+        }
+      };
+      request.onerror = () => resolve(null);
+    } catch (err) {
+      resolve(null);
+    }
+  });
+}
+
+export function clearAvatarFromIndexedDB(): Promise<void> {
+  return new Promise((resolve) => {
+    try {
+      const request = indexedDB.open('varun_portfolio_indexeddb', 1);
+      request.onsuccess = (e: any) => {
+        const db = e.target.result;
+        try {
+          if (!db.objectStoreNames.contains('assets')) {
+            resolve();
+            return;
+          }
+          const transaction = db.transaction('assets', 'readwrite');
+          const store = transaction.objectStore('assets');
+          store.delete('avatar');
+          resolve();
+        } catch (err) {
+          resolve();
+        }
+      };
+      request.onerror = () => resolve();
+    } catch (err) {
+      resolve();
+    }
+  });
+}
+
 export default function App() {
+  const [avatarOverride, setAvatarOverride] = useState<string | null>(null);
+
+  // Load avatar override on mount
+  useEffect(() => {
+    getAvatarFromIndexedDB().then((val) => {
+      if (val) {
+        setAvatarOverride(val);
+      }
+    });
+  }, []);
+
   // Primary Profile CMS State (persisted in localStorage)
   const [profile, setProfile] = useState<DeveloperProfile>(() => {
     const saved = localStorage.getItem('varun_profile_data');
@@ -412,11 +515,18 @@ export default function App() {
                                 reader.onloadend = async () => {
                                   if (typeof reader.result === 'string') {
                                     try {
-                                      // Save base64 string directly in the client state so it survives container restarts/deploys perfectly
                                       const base64Data = reader.result;
-                                      updateProfile({ ...profile, profilePictureUrl: base64Data });
                                       
-                                      // Concurrently sync the static file to server codebase in background
+                                      // 1. Instantly update memory state to show high-resolution image preview
+                                      setAvatarOverride(base64Data);
+                                      
+                                      // 2. Persist in IndexedDB to completely bypass standard 5MB localStorage caps
+                                      await saveAvatarToIndexedDB(base64Data);
+                                      
+                                      // 3. Stash clean lightweight path pointer in profile database
+                                      updateProfile({ ...profile, profilePictureUrl: "/api/avatar" });
+                                      
+                                      // 4. Background sync file to server codebase
                                       fetch('/api/upload-avatar', {
                                         method: 'POST',
                                         headers: {
@@ -429,13 +539,16 @@ export default function App() {
                                       })
                                       .then(res => res.json())
                                       .then(data => {
-                                        console.log("Background codebase write synced successfully:", data);
+                                        console.log("Background write synced with server successfully:", data);
+                                        if (data.success && data.url) {
+                                          updateProfile({ ...profile, profilePictureUrl: data.url });
+                                        }
                                       })
                                       .catch(err => {
-                                        console.warn("Background workspace write skipped in standalone or production mode:", err);
+                                        console.warn("Server filesystem syncing bypassed, running in client standalone mode:", err);
                                       });
                                     } catch (err) {
-                                      console.error("Local upload handling failed:", err);
+                                      console.error("Local data ingestion failed:", err);
                                     } finally {
                                       setIsUploadingPhoto(false);
                                     }
@@ -466,7 +579,15 @@ export default function App() {
                           </label>
                           <button
                             type="button"
-                            onClick={() => updateProfile({ ...profile, profilePictureUrl: "/avatar.svg" })}
+                            onClick={async () => {
+                              try {
+                                setAvatarOverride(null);
+                                await clearAvatarFromIndexedDB();
+                                updateProfile({ ...profile, profilePictureUrl: "/avatar.svg" });
+                              } catch (err) {
+                                console.error("Failed to reset avatar:", err);
+                              }
+                            }}
                             className="px-3 py-2 bg-slate-950 hover:bg-slate-900 text-slate-400 hover:text-white border border-slate-850 hover:border-slate-800 text-xs font-semibold rounded-lg transition-colors"
                           >
                             Reset
@@ -836,7 +957,12 @@ export default function App() {
         
         {/* HERO SECTION WITH PORTRAIT PHOTO & ABOUT ME */}
         <Hero 
-          profile={profile} 
+          profile={{
+            ...profile,
+            profilePictureUrl: (avatarOverride && (profile.profilePictureUrl === '/api/avatar' || profile.profilePictureUrl?.startsWith('/api/avatar')))
+              ? avatarOverride
+              : (profile.profilePictureUrl || '/avatar.svg')
+          }} 
           setIsResumeOpen={setIsResumeOpen}
           isEditorMode={isEditorMode}
           setIsCustomizerOpen={setIsCustomizerOpen}
