@@ -27,11 +27,30 @@ export default function Hero({
   setIsCustomizerOpen = () => {},
   setCustomizerTab = () => {},
 }: HeroProps) {
-  const [imageError, setImageError] = React.useState(false);
+  const [imgSrc, setImgSrc] = React.useState<string>('/avatar.png');
+  const [attemptIndex, setAttemptIndex] = React.useState<number>(0);
+
+  const candidates = React.useMemo(() => {
+    if (profile.profilePictureUrl && (profile.profilePictureUrl.startsWith('data:') || profile.profilePictureUrl.startsWith('http'))) {
+      return [profile.profilePictureUrl];
+    }
+    return ['/avatar.png', '/avatar.jpg', '/avatar.jpeg', '/avatar.webp', '/avatar.svg'];
+  }, [profile.profilePictureUrl]);
 
   React.useEffect(() => {
-    setImageError(false);
-  }, [profile.profilePictureUrl]);
+    setImgSrc(candidates[0]);
+    setAttemptIndex(0);
+  }, [candidates]);
+
+  const handleImageError = () => {
+    const nextIndex = attemptIndex + 1;
+    if (nextIndex < candidates.length) {
+      setAttemptIndex(nextIndex);
+      setImgSrc(candidates[nextIndex]);
+    } else {
+      setImgSrc('/avatar.svg');
+    }
+  };
 
   return (
     <section id="about" className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center scroll-mt-24 pt-4">
@@ -164,17 +183,11 @@ export default function Hero({
               {/* Real headshot image circular shape */}
               <div className="w-full h-full rounded-full overflow-hidden bg-slate-100 relative">
                 <img 
-                  src={profile.profilePictureUrl || '/avatar.svg'} 
+                  src={imgSrc} 
                   alt={profile.name} 
                   className="w-full h-full object-cover transition-transform duration-305 group-hover/avatar:scale-105"
                   referrerPolicy="no-referrer"
-                  onError={(e) => {
-                    console.warn("Avatar image failed to load, falling back to placeholder svg:");
-                    const target = e.target as HTMLImageElement;
-                    if (target.src && !target.src.endsWith('/avatar.svg')) {
-                      target.src = '/avatar.svg';
-                    }
-                  }}
+                  onError={handleImageError}
                 />
               </div>
 
