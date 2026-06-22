@@ -52,7 +52,7 @@ import Hero from './components/Hero';
 import Footer from './components/Footer';
 
 // Premium client-side image square-cropping & high-quality compression to fit standard 5MB localStorage caps flawlessly
-export function compressImageToSquare(base64Str: string, size = 400): Promise<string> {
+export function compressImageToSquare(base64Str: string, size = 256): Promise<string> {
   return new Promise((resolve) => {
     try {
       const img = new Image();
@@ -573,13 +573,14 @@ export default function App() {
                                       // 1. Instantly update memory state to show image preview
                                       setAvatarOverride(base64Data);
                                       
-                                      // 2. Persist in IndexedDB to completely bypass standard 5MB localStorage caps as fallback
+                                      // 2. Persist in IndexedDB as a robust fallback
                                       await saveAvatarToIndexedDB(base64Data);
                                       
-                                      // 3. Stash a clean pointer in the profile database
-                                      updateProfile({ ...profile, profilePictureUrl: "/api/avatar" });
+                                      // 3. Stash the compressed image directly in profile database
+                                      // Since the compressed image is tiny (~15KB), this fits flawlessly and survives Vercel deploys!
+                                      updateProfile({ ...profile, profilePictureUrl: base64Data });
                                       
-                                      // 4. Background sync file to server codebase
+                                      // 4. Background sync file to server codebase (optional hook for active dynamic server)
                                       fetch('/api/upload-avatar', {
                                         method: 'POST',
                                         headers: {
@@ -593,9 +594,6 @@ export default function App() {
                                       .then(res => res.json())
                                       .then(data => {
                                         console.log("Background write synced with server successfully:", data);
-                                        if (data.success && data.url) {
-                                          updateProfile({ ...profile, profilePictureUrl: data.url });
-                                        }
                                       })
                                       .catch(err => {
                                         console.warn("Server filesystem syncing bypassed, running in client standalone mode:", err);
