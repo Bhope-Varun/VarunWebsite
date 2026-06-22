@@ -29,12 +29,12 @@ async function startServer() {
     // Check files
     const possibleFiles = ['avatar.png', 'avatar.jpg', 'avatar.jpeg', 'avatar.webp', 'avatar.svg'];
     for (const f of possibleFiles) {
-      const distPath = path.join(__dirname, 'dist', f);
+      const distPath = path.join(process.cwd(), 'dist', f);
       if (fs.existsSync(distPath)) {
         res.setHeader('Content-Type', f.endsWith('.svg') ? 'image/svg+xml' : `image/${f.split('.').pop()}`);
         return res.sendFile(distPath);
       }
-      const publicPath = path.join(__dirname, 'public', f);
+      const publicPath = path.join(process.cwd(), 'public', f);
       if (fs.existsSync(publicPath)) {
         res.setHeader('Content-Type', f.endsWith('.svg') ? 'image/svg+xml' : `image/${f.split('.').pop()}`);
         return res.sendFile(publicPath);
@@ -63,7 +63,7 @@ async function startServer() {
       activeAvatarMime = mimeMatch ? mimeMatch[1] : 'image/png';
 
       // Determine standard target folder inside project code
-      const publicFolder = path.join(__dirname, 'public');
+      const publicFolder = path.join(process.cwd(), 'public');
       if (!fs.existsSync(publicFolder)) {
         fs.mkdirSync(publicFolder, { recursive: true });
       }
@@ -82,7 +82,7 @@ async function startServer() {
       }
 
       // We also copy to builder dist output if it's currently running (for instant render in production)
-      const distFolder = path.join(__dirname, 'dist');
+      const distFolder = path.join(process.cwd(), 'dist');
       if (fs.existsSync(distFolder)) {
         try {
           fs.writeFileSync(path.join(distFolder, targetFilename), buffer);
@@ -108,9 +108,9 @@ async function startServer() {
   const isProd = process.env.NODE_ENV === 'production' || process.argv.includes('--prod');
   
   if (isProd) {
-    app.use(express.static(path.join(__dirname, 'dist')));
+    app.use(express.static(path.join(process.cwd(), 'dist')));
     app.get('*', (req, res) => {
-      res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+      res.sendFile(path.join(process.cwd(), 'dist', 'index.html'));
     });
   } else {
     const vite = await createViteServer({

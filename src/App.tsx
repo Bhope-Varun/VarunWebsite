@@ -576,9 +576,8 @@ export default function App() {
                                       // 2. Persist in IndexedDB to completely bypass standard 5MB localStorage caps as fallback
                                       await saveAvatarToIndexedDB(base64Data);
                                       
-                                      // 3. Stash the compressed image directly in profile database
-                                      // No quota exceeded error because the compressed image is tiny (~40KB)!
-                                      updateProfile({ ...profile, profilePictureUrl: base64Data });
+                                      // 3. Stash a clean pointer in the profile database
+                                      updateProfile({ ...profile, profilePictureUrl: "/api/avatar" });
                                       
                                       // 4. Background sync file to server codebase
                                       fetch('/api/upload-avatar', {
@@ -594,6 +593,9 @@ export default function App() {
                                       .then(res => res.json())
                                       .then(data => {
                                         console.log("Background write synced with server successfully:", data);
+                                        if (data.success && data.url) {
+                                          updateProfile({ ...profile, profilePictureUrl: data.url });
+                                        }
                                       })
                                       .catch(err => {
                                         console.warn("Server filesystem syncing bypassed, running in client standalone mode:", err);

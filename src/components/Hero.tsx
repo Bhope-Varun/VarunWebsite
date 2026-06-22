@@ -27,6 +27,12 @@ export default function Hero({
   setIsCustomizerOpen = () => {},
   setCustomizerTab = () => {},
 }: HeroProps) {
+  const [imageError, setImageError] = React.useState(false);
+
+  React.useEffect(() => {
+    setImageError(false);
+  }, [profile.profilePictureUrl]);
+
   return (
     <section id="about" className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center scroll-mt-24 pt-4">
       
@@ -157,23 +163,21 @@ export default function Hero({
               
               {/* Real headshot image circular shape */}
               <div className="w-full h-full rounded-full overflow-hidden bg-slate-100 relative">
-                {profile.profilePictureUrl ? (
+                {!imageError && profile.profilePictureUrl ? (
                   <img 
                     src={profile.profilePictureUrl} 
                     alt={profile.name} 
                     className="w-full h-full object-cover transition-transform duration-305 group-hover/avatar:scale-105"
                     referrerPolicy="no-referrer"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      if (target.src && !target.src.endsWith('/avatar.svg')) {
-                        target.src = '/avatar.svg';
-                      }
+                    onError={() => {
+                      console.warn("Avatar image failed to load, falling back to placeholder:");
+                      setImageError(true);
                     }}
                   />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-indigo-100 to-slate-200 flex flex-col items-center justify-center text-indigo-400">
-                    <User className="w-12 h-12 opacity-40" />
-                    <span className="text-[9px] text-slate-400 font-mono">No Image</span>
+                  <div className="w-full h-full bg-slate-900 flex flex-col items-center justify-center text-indigo-400">
+                    <User className="w-12 h-12 opacity-60 text-indigo-400" />
+                    <span className="text-[10px] text-slate-400 font-bold mt-1 tracking-wide font-mono">No Image</span>
                   </div>
                 )}
               </div>
