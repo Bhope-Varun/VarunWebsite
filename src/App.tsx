@@ -58,7 +58,7 @@ export default function App() {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (parsed.email === 'Varunbhope2004@gmail.com' || !parsed.projects || parsed.projects.length < 6 || !parsed.bio || parsed.bio.length < 250) {
+        if (!parsed || !parsed.name || !parsed.projects) {
           return defaultProfile;
         }
         // Migrate old Unsplash placeholder image to our new local /avatar.svg
@@ -76,6 +76,7 @@ export default function App() {
   const [isResumeOpen, setIsResumeOpen] = useState(false);
   const [isEditorMode, setIsEditorMode] = useState(false);
   const [isCustomizerOpen, setIsCustomizerOpen] = useState(false);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [customizerTab, setCustomizerTab] = useState<'general' | 'projects' | 'skills' | 'timeline'>('general');
 
   // Load initial states from localStorage if they exist
