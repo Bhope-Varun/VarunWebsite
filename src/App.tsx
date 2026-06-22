@@ -403,13 +403,44 @@ export default function App() {
                             type="file" 
                             accept="image/*"
                             id="drawer-photo-file-upload"
+                            disabled={isUploadingPhoto}
                             onChange={(e) => {
                               const file = e.target.files?.[0];
                               if (file) {
+                                setIsUploadingPhoto(true);
                                 const reader = new FileReader();
-                                reader.onloadend = () => {
+                                reader.onloadend = async () => {
                                   if (typeof reader.result === 'string') {
-                                    updateProfile({ ...profile, profilePictureUrl: reader.result });
+                                    try {
+                                      // Save base64 string directly in the client state so it survives container restarts/deploys perfectly
+                                      const base64Data = reader.result;
+                                      updateProfile({ ...profile, profilePictureUrl: base64Data });
+                                      
+                                      // Concurrently sync the static file to server codebase in background
+                                      fetch('/api/upload-avatar', {
+                                        method: 'POST',
+                                        headers: {
+                                          'Content-Type': 'application/json'
+                                        },
+                                        body: JSON.stringify({
+                                          image: base64Data,
+                                          filename: file.name
+                                        })
+                                      })
+                                      .then(res => res.json())
+                                      .then(data => {
+                                        console.log("Background codebase write synced successfully:", data);
+                                      })
+                                      .catch(err => {
+                                        console.warn("Background workspace write skipped in standalone or production mode:", err);
+                                      });
+                                    } catch (err) {
+                                      console.error("Local upload handling failed:", err);
+                                    } finally {
+                                      setIsUploadingPhoto(false);
+                                    }
+                                  } else {
+                                    setIsUploadingPhoto(false);
                                   }
                                 };
                                 reader.readAsDataURL(file);
@@ -419,17 +450,26 @@ export default function App() {
                           />
                           <label 
                             htmlFor="drawer-photo-file-upload"
-                            className="flex-1 flex items-center justify-center space-x-1.5 px-3 py-2 bg-indigo-600/20 hover:bg-indigo-600/35 border border-indigo-500/30 hover:border-indigo-500/50 text-indigo-300 hover:text-white text-xs font-bold rounded-lg cursor-pointer transition-all"
+                            className={`flex-1 flex items-center justify-center space-x-1.5 px-3 py-2 text-xs font-bold rounded-lg cursor-pointer transition-all ${isUploadingPhoto ? 'bg-indigo-600/10 border border-indigo-500/20 text-slate-400 cursor-not-allowed' : 'bg-indigo-600/20 hover:bg-indigo-600/35 border border-indigo-500/30 hover:border-indigo-500/50 text-indigo-300 hover:text-white'}`}
                           >
-                            <Plus className="w-3.5 h-3.5" />
-                            <span>Upload Local photo file</span>
+                            {isUploadingPhoto ? (
+                              <>
+                                <span className="animate-spin h-3.5 w-3.5 border-2 border-indigo-400 border-t-transparent rounded-full mr-1" />
+                                <span>Uploading image...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Plus className="w-3.5 h-3.5" />
+                                <span>Upload local PNG/JPG</span>
+                              </>
+                            )}
                           </label>
                           <button
                             type="button"
                             onClick={() => updateProfile({ ...profile, profilePictureUrl: "/avatar.svg" })}
                             className="px-3 py-2 bg-slate-950 hover:bg-slate-900 text-slate-400 hover:text-white border border-slate-850 hover:border-slate-800 text-xs font-semibold rounded-lg transition-colors"
                           >
-                            Reset Placeholder
+                            Reset
                           </button>
                         </div>
                       </div>

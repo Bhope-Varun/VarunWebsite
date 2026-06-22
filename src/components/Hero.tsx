@@ -35,7 +35,7 @@ export default function Hero({
         <div className="space-y-4">
           <div className="inline-flex items-center space-x-2 bg-indigo-500/10 border border-indigo-500/20 px-3.5 py-1.5 rounded-full text-xs text-indigo-300 font-mono">
             <Sparkle className="w-3.5 h-3.5 animate-spin" style={{ animationDuration: '4s' }} />
-            <span>Available for Full-Stack & Developer </span>
+            <span>Available for Full-Stack & Developer Positions</span>
           </div>
 
           {/* Massive Name Display */}
@@ -163,6 +163,12 @@ export default function Hero({
                     alt={profile.name} 
                     className="w-full h-full object-cover transition-transform duration-305 group-hover/avatar:scale-105"
                     referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      if (target.src && !target.src.endsWith('/avatar.svg')) {
+                        target.src = '/avatar.svg';
+                      }
+                    }}
                   />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-indigo-100 to-slate-200 flex flex-col items-center justify-center text-indigo-400">
